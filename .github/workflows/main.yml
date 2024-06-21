@@ -4,10 +4,7 @@ on:
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - main
-  workflow_dispatch:  # Allows manual triggering from Actions tab
+  workflow_dispatch:
 
 jobs:
   build:
@@ -16,25 +13,25 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-
+      
       - name: Run Leapwork Automated Test flows, schedule Daily regression
         shell: pwsh
         run: |
-          $headers = @{}
-          $headers.Add("AccessKey", "ASvAPneQYwUL1VTX")
-          $runScheduleId = "7fc95621-572e-4da3-9d7b-d98efdd98cc4"
-          $runNow = Invoke-WebRequest -Method GET -ContentType "application/json" -Headers $headers "https://fba4-202-173-125-59.ngrok-free.app/api/v3/schedules"
-          Write-Host "Result: $($runNow)"
-          if ($runNow.StatusCode -ne 200) { throw "Could not run schedule." }
-          $runNowResponse = $runNow.Content | ConvertFrom-Json
-          $runId = $runNowResponse.RunId
+          $headers = @{
+            "AccessKey" = "ASvAPneQYwUL1VTX"
+            "ngrok-skip-browser-warning" = "69420"
+          }
+          $runScheduleId = "d41f169d-88d5-442e-b8ba-9afe9dc01c3a"
+          $url = "https://de6c-202-173-125-59.ngrok-free.app/api/v3/schedules/$runScheduleId/runNow?TEST_VALUE='ABC'"
+          $response = Invoke-WebRequest -Uri $url -Method PUT -ContentType "application/json" -Headers $headers
 
-          # Poll for run results
-          do {
-            Start-Sleep -Seconds 5
-            Write-Host "Polling for run results. Runid= $($runId)"
-            $runResult = Invoke-WebRequest -ContentType "application/json" -Headers $headers "https://fba4-202-173-125-59.ngrok-free.app/api/v3/schedules" | ConvertFrom-Json
-          } while ($runResult.Status -ne 'Finished')
-
-          Write-Host "Results received."
-          Write-Host "Run Result: $($runResult)"
+          if ($response.StatusCode -eq 200) {
+            $responseData = $response.Content | ConvertFrom-Json
+            Write-Output "Response JSON: $($responseData | ConvertTo-Json -Depth 100)"
+            # Process $responseData here
+          } else {
+            Write-Output "HTTP Error $($response.StatusCode) - $($response.StatusDescription)"
+            Write-Output "Response Content:"
+            Write-Output $response.Content
+            # Handle error or unexpected response here
+          }
