@@ -1,37 +1,43 @@
-name: Test Leapwork Action
+name: Display Run Items Property
 
 on:
   push:
     branches:
       - main
-  workflow_dispatch:
 
 jobs:
-  build:
+  display_property:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-      
-      - name: Run Leapwork Automated Test flows, schedule Daily regression
-        shell: pwsh
-        run: |
-          $headers = @{
-            "AccessKey" = "ASvAPneQYwUL1VTX"
-            "ngrok-skip-browser-warning" = "69420"
-          }
-          $runScheduleId = "d41f169d-88d5-442e-b8ba-9afe9dc01c3a"
-          $url = "https://fba4-202-173-125-59.ngrok-free.app/api/v3/schedules"
-          $response = Invoke-WebRequest -Uri $url -Method GET -ContentType "application/json" -Headers $headers
 
-          if ($response.StatusCode -eq 200) {
-            $responseData = $response.Content | ConvertFrom-Json
-            Write-Output "Response JSON: $($responseData | ConvertTo-Json -Depth 100)"
-            # Process $responseData here
-          } else {
-            Write-Output "HTTP Error $($response.StatusCode) - $($response.StatusDescription)"
-            Write-Output "Response Content:"
-            Write-Output $response.Content
-            # Handle error or unexpected response here
-          }
+      # Step 2: Call RunNow API to get runId
+      - name: Get RunId
+        id: get_run_id
+        run: |
+          # Replace with your actual API call logic using curl or another HTTP client
+          # Example: Call RunNow API and capture runId from response
+          run_id=$(curl -s -X PUT -H "Authorization: Bearer $ACCESS_TOKEN" "https://fba4-202-173-125-59.ngrok-free.app/api/v4/schedules/7fc95621-572e-4da3-9d7b-d98efdd98cc4/runNow" | jq -r '.runId')
+          echo "::set-output name=run_id::$run_id"
+
+      # Step 3: Call RunItemIds API with obtained runId to get runItemIds
+      - name: Get RunItemIds
+        id: get_run_item_ids
+        run: |
+          run_id=${{ steps.get_run_id.outputs.run_id }}
+          # Replace with your actual API call logic
+          run_item_ids=$(curl -s -X GET -H "Authorization: Bearer $ACCESS_TOKEN" "https://fba4-202-173-125-59.ngrok-free.app/api/v4/run/$run_id/runItemIds" | jq -r '.runItemIds | .[]')
+          echo "::set-output name=run_item_ids::$run_item_ids"
+
+      # Step 4: Iterate over runItemIds and call RunItems API for each, displaying required property
+      - name: Display Property from RunItems
+        id: display_property
+        run: |
+          run_item_ids=${{ steps.get_run_item_ids.outputs.run_item_ids }}
+          for run_item_id in $run_item_ids; do
+            # Replace with your actual API call logic for RunItems API
+            property_value=$(curl -s -X GET -H "Authorization: Bearer $ACCESS_TOKEN" "https://fba4-202-173-125-59.ngrok-free.app/api/v4/runItems/$run_item_id" | jq -r '.property')
+            echo "Property value for runItemId $run_item_id: $property_value"
+          done
