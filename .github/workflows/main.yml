@@ -19,7 +19,7 @@ jobs:
         run: |
           # Replace with your actual API call logic using curl or another HTTP client
           # Example: Call RunNow API and capture runId from response
-          run_id=$(curl -s -X PUT -H "Authorization: Bearer $ACCESS_TOKEN" "https://fba4-202-173-125-59.ngrok-free.app/api/v4/schedules/7fc95621-572e-4da3-9d7b-d98efdd98cc4/runNow" | jq -r '.runId')
+          run_id=$(curl -s -X PUT -H "Authorization: Bearer $ACCESS_TOKEN" "https://fba4-202-173-125-59.ngrok-free.app/api/v4/schedules/7fc95621-572e-4da3-9d7b-d98efdd98cc4/runNow")
           echo "::set-output name=run_id::$run_id"
 
       # Step 3: Call RunItemIds API with obtained runId to get runItemIds
