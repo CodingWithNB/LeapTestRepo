@@ -13,55 +13,72 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-
+      
       - name: Run Leapwork Automated Test flows, schedule Daily regression
-        env:
-          ACCESS_KEY: ${{ secrets.ACCESS_KEY }}  # Define your secret in GitHub Secrets
-
+        shell: pwsh
+        
         run: |
-          # Define PowerShell script inline
+          # Define headers
           $headers = @{
-            "AccessKey" = $env:ACCESS_KEY
+            "AccessKey" = "ASvAPneQYwUL1VTX"
             "ngrok-skip-browser-warning" = "69420"
           }
           
-          $runId = "d44f4aa7-62eb-4072-bf5d-4f1a7de07298"
-          $ngrokUrl = "https://fba4-202-173-125-59.ngrok-free.app/api/v4/run/$runId/runItemIds"
-
-          Write-Output "Calling URL for runItemIds: $ngrokUrl"
-
+          # Define API URL for starting schedule
+          $runScheduleId = "d41f169d-88d5-442e-b8ba-9afe9dc01c3a"
+          $url = "https://fba4-202-173-125-59.ngrok-free.app/api/v4/schedules/7fc95621-572e-4da3-9d7b-d98efdd98cc4/runNow"
+          
           try {
-              # Make GET request
-              $response = Invoke-WebRequest -Uri $ngrokUrl -Method GET -Headers $headers -ContentType "application/json" -ErrorAction Stop
-  
-              # Print raw response (for debugging purposes)
-              Write-Output "Raw Response:"
-              Write-Output $response.Content
-  
-              # Check if request was successful (status code 200-299)
-              if ($response.StatusCode -eq 200) {
+              # Make PUT request to start schedule
+              $response = Invoke-WebRequest -Uri $url -Method PUT -Headers $headers -ContentType "application/json" -ErrorAction Stop
+
+              # Check if starting schedule was successful (status code 200-299)
+              if ($response.StatusCode -ge 200 -and $response.StatusCode -lt 300) {
                   $jsonResponse = $response.Content | ConvertFrom-Json
+                  $runId = $jsonResponse.runId
+                  Write-Output "runId: $runId"
+
+                  # Store runId in an environment variable for subsequent steps
+                  echo "run_id=$runId" >> $env:GITHUB_ENV
+
+                  # Define API URL to retrieve runItemIds
+                  $url2 = "https://fba4-202-173-125-59.ngrok-free.app/api/v4/run/$runId/runItemIds"
+                  Write-Output "Calling URL for runItemIds: $url2"
                   
-                  # Print parsed JSON response (for debugging purposes)
-                  Write-Output "Parsed JSON Response:"
-                  Write-Output $jsonResponse
-  
-                  # Access RunItemIds
-                  $runItemIds = $jsonResponse.RunItemIds
+                  # Make GET request to retrieve runItemIds
+                  $response2 = Invoke-WebRequest -Uri $url2 -Method GET -Headers $headers -ContentType "application/json" -ErrorAction Stop
+
+                  Write-Output "Response from API:"
+                  Write-Output $response2.Content
                   
-                  # Check if RunItemIds array exists and is not empty
-                  if ($runItemIds -and $runItemIds.Count -gt 0) {
-                      $runItemId = $runItemIds[0]
-                      Write-Output "runItemId: $runItemId"
+                  # Check if request to retrieve runItemIds was successful (status code 200-299)
+                  if ($response2.StatusCode -eq 200) {
+                      $jsonResponse2 = $response2.Content | ConvertFrom-Json
                       
-                      # Save runItemId to an environment variable for subsequent use
-                      echo "run_item_id=$runItemId" >> $env:GITHUB_ENV
+                      # Print the entire $jsonResponse2 object (for debugging purposes)
+                      Write-Output "JSON Response from API:"
+                      Write-Output $jsonResponse2 
+
+                       # Access RunItemIds
+                      $runItemIds = $jsonResponse2.RunItemIds
+                      
+                      # Check if RunItemIds array exists and is not empty
+                    if ($runItemIds -and $runItemIds.Count -gt 0) {
+                    $runItemId = $runItemIds[0]
+                    Write-Output "runItemId: $runItemId"
+                    
+                    # Save runItemId to an environment variable for subsequent use
+                    echo "run_item_id=$runItemId" >> $env:GITHUB_ENV
+                } else {
+                    Write-Error "No RunItemIds found in API response."
+                    exit 1
+                }
                   } else {
-                      Write-Error "No RunItemIds found in API response."
+                      Write-Error "Failed to retrieve runItemId. HTTP status code: $($response2.StatusCode)"
                       exit 1
                   }
               } else {
-                  Write-Error "Failed to retrieve runItemIds. HTTP status code: $($response.StatusCode)"
+                  Write-Error "Failed to start schedule. HTTP status code: $($response.StatusCode)"
                   exit 1
               }
           } catch {
