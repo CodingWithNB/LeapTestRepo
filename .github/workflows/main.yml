@@ -85,6 +85,33 @@ jobs:
                   Write-Error "Failed to start schedule. HTTP status code: $($response.StatusCode)"
                   exit 1
               }
+              # Define API URL to retrieve runItem and its status
+              $url3 = "https://fba4-202-173-125-59.ngrok-free.app/api/v4/runItems/$runItemId"
+              $response3 = Invoke-WebRequest -Uri $ngrokUrl -Method GET -ContentType "application/json"  -Headers $headers -ErrorAction Stop
+
+               # Check if request was successful (status code 200-299)
+                if ($response.StatusCode -eq 200) {
+              $jsonResponse = $response.Content | ConvertFrom-Json
+            
+            # Print parsed JSON response (for debugging purposes)
+            Write-Output "Parsed JSON Response:"
+            Write-Output $jsonResponse
+    
+            # Access RunItemIds
+            $runItems = $jsonResponse.RunItems
+            
+            # Check if RunItemIds array exists and is not empty
+            if ($runItems -and $runItems.Count -gt 0) {
+                $runItems = $runItems[0]
+                Write-Output "runItemId: $runItems"
+                
+                # Save runItemId to an environment variable for subsequent use
+                echo "run_item_id=$runItemId" >> $env:GITHUB_ENV
+            } else {
+                Write-Error "No RunItemIds found in API response."
+                exit 1
+            }
+               
           } catch {
               Write-Error "Error occurred: $_"
               exit 1
