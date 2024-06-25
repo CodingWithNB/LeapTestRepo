@@ -66,6 +66,7 @@ jobs:
                           switch ($status) {
                               "NoStatus", "Initializing", "Connecting", "Connected", "Running", "IsProcessing" {
                                   # Do nothing for these statuses
+                                  continue
                               }
                               "Passed", "Failed", "Error", "Inconclusive", "Timeout", "Cancelled", "Done" {
                                   # Add logic to handle each status accordingly
@@ -91,6 +92,10 @@ jobs:
                                           # Increment counters or perform other actions
                                       }
                                   }
+                              }
+                              default {
+                                  # Default case
+                                  Write-Output "Unhandled status: $status"
                               }
                           }
                       }
