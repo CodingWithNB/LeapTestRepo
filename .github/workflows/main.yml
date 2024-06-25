@@ -16,12 +16,11 @@ jobs:
       
       - name: Run Leapwork Automated Test flows, schedule Daily regression
         shell: pwsh
-        env:
-          ACCESS_KEY: ${{ secrets.ACCESS_KEY }}  # Store your access key securely in GitHub Secrets
+        
         run: |
           # Define headers
           $headers = @{
-            "AccessKey" = $env:ACCESS_KEY
+            "AccessKey" = "ASvAPneQYwUL1VTX"
             "ngrok-skip-browser-warning" = "69420"
           }
           
