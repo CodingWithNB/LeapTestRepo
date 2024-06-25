@@ -49,27 +49,30 @@ jobs:
                   $response2 = Invoke-WebRequest -Uri $url2 -Method GET -Headers $headers -ContentType "application/json" -ErrorAction Stop
 
                   Write-Output "Response from API:"
-                  Write-Output $response2 
+                  Write-Output $response2.Content
                   
                   # Check if request to retrieve runItemIds was successful (status code 200-299)
-                  if ($response2.StatusCode -ge 200 -and $response2.StatusCode -lt 300) {
+                  if ($response2.StatusCode -eq 200) {
                       $jsonResponse2 = $response2.Content | ConvertFrom-Json
                       
                       # Print the entire $jsonResponse2 object (for debugging purposes)
                       Write-Output "JSON Response from API:"
                       Write-Output $jsonResponse2 
+
+                       # Access RunItemIds
+                      $runItemIds = $jsonResponse.RunItemIds
                       
                       # Check if RunItemIds array exists and is not empty
-                      if ($jsonResponse2.RunItemIds -and $jsonResponse2.RunItemIds.Count -gt 0) {
-                          $runItemId = $jsonResponse2.RunItemIds[0]
-                          Write-Output "runItemId: $runItemId"
-              
-                          # Save runItemId to an environment variable for subsequent use
-                          echo "run_item_id=$runItemId" >> $env:GITHUB_ENV
-                      } else {
-                          Write-Error "No RunItemIds found in API response."
-                          exit 1
-                      }
+                    if ($runItemIds -and $runItemIds.Count -gt 0) {
+                    $runItemId = $runItemIds[0]
+                    Write-Output "runItemId: $runItemId"
+                    
+                    # Save runItemId to an environment variable for subsequent use
+                    echo "run_item_id=$runItemId" >> $env:GITHUB_ENV
+                } else {
+                    Write-Error "No RunItemIds found in API response."
+                    exit 1
+                }
                   } else {
                       Write-Error "Failed to retrieve runItemId. HTTP status code: $($response2.StatusCode)"
                       exit 1
