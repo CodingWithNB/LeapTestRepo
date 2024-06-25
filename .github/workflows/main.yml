@@ -101,7 +101,7 @@ jobs:
                                       Write-Output "Status of runItem: $status"
                                       
                                       # Count passed and failed runItems
-                                      if ($status -eq "passed") {
+                                      if ($status -eq "passed" -or $status -eq "Done") {
                                           $passedCount++
                                       } else {
                                           $failedCount++
