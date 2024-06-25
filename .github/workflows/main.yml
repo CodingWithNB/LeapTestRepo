@@ -34,10 +34,18 @@ jobs:
 
               # Use runId in the next API call
               $url2 = "https://fba4-202-173-125-59.ngrok-free.app/api/v4/run/$runId/runItemIds"
+              Write-Output "Calling URL for runItemIds: $url2"
               $response2 = Invoke-WebRequest -Uri $url2 -Method GET -Headers $headers -ContentType "application/json"
 
+              Write-Output "Response from API:"
+                  Write-Output $response2 
+                  
               if ($response2.StatusCode -ge 200 -and $response2.StatusCode -lt 300) {
                   $jsonResponse2 = $response2.Content | ConvertFrom-Json
+                  
+                   # Print the entire $jsonResponse2 object
+                  Write-Output "JSON Response from API:"
+                  Write-Output $jsonResponse2 
                   
                   # Check if RunItemIds array exists and is not empty
                   if ($jsonResponse2.RunItemIds -and $jsonResponse2.RunItemIds.Count -gt 0) {
