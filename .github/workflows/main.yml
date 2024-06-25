@@ -41,7 +41,7 @@ jobs:
                   # Store runId in an environment variable for subsequent steps
                   echo "run_id=$runId" >> $env:GITHUB_ENV
 
-                    # Introduce a delay of 30 seconds (adjust as necessary)
+                  # Introduce a delay of 30 seconds (adjust as necessary)
                   Write-Output "Waiting for 30 seconds before calling the second API..."
                   Start-Sleep -Seconds 30
                   
@@ -63,30 +63,18 @@ jobs:
                       Write-Output "JSON Response from API:"
                       Write-Output $jsonResponse2 
 
-                       # Access RunItemIds
+                      # Access RunItemIds
                       $runItemIds = $jsonResponse2.RunItemIds
                       
                       # Check if RunItemIds array exists and is not empty
-                    if ($runItemIds -and $runItemIds.Count -gt 0) {
-                    $runItemId = $runItemIds[0]
-                    Write-Output "runItemId: $runItemId"
-                    
-                    # Save runItemId to an environment variable for subsequent use
-                    echo "run_item_id=$runItemId" >> $env:GITHUB_ENV
-                } else {
-                    Write-Error "No RunItemIds found in API response."
-                    exit 1
-                }
-                  } else {
-                      Write-Error "Failed to retrieve runItemId. HTTP status code: $($response2.StatusCode)"
-                      exit 1
-                  }
-              } else {
-                  Write-Error "Failed to start schedule. HTTP status code: $($response.StatusCode)"
-                  exit 1
-              }
-              
-               # Initialize counters for passed and failed runItems
+                      if ($runItemIds -and $runItemIds.Count -gt 0) {
+                          $runItemId = $runItemIds[0]
+                          Write-Output "runItemId: $runItemId"
+                          
+                          # Save runItemId to an environment variable for subsequent use
+                          echo "run_item_id=$runItemId" >> $env:GITHUB_ENV
+                          
+                          # Initialize counters for passed and failed runItems
                           $passedCount = 0
                           $failedCount = 0
                           
@@ -122,3 +110,30 @@ jobs:
                                       Write-Error "Failed to parse JSON response for runItem: $_"
                                       exit 1
                                   }
+                              } else {
+                                  Write-Error "Failed to retrieve runItem. HTTP status code: $($response3.StatusCode)"
+                                  exit 1
+                              }
+                          }
+                          
+                          # Print summary of passed and failed runItems
+                          Write-Output "Total Passed RunItems: $passedCount"
+                          Write-Output "Total Failed RunItems: $failedCount"
+                          
+                      } else {
+                          Write-Error "No RunItemIds found in API response."
+                          exit 1
+                      }
+                  } else {
+                      Write-Error "Failed to retrieve runItemIds. HTTP status code: $($response2.StatusCode)"
+                      exit 1
+                  }
+              } else {
+                  Write-Error "Failed to start schedule. HTTP status code: $($response.StatusCode)"
+                  exit 1
+              }
+              
+          } catch {
+              Write-Error "Error occurred: $_"
+              exit 1
+          }
