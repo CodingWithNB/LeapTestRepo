@@ -22,36 +22,33 @@ jobs:
             "ngrok-skip-browser-warning" = "69420"
           }
           $runScheduleId = "d41f169d-88d5-442e-b8ba-9afe9dc01c3a"
-          $url = "https://fba4-202-173-125-59.ngrok-free.app/api/v4/schedules/7fc95621-572e-4da3-9d7b-d98efdd98cc4/runNow"
-          $response = Invoke-WebRequest -Uri $url -Method PUT -Headers $headers -ContentType "application/json"
+          $url = "https://fba4-202-173-125-59.ngrok-free.app/api/v3/schedules"
+          $response = Invoke-WebRequest -Uri $url -Method GET -Headers $headers -ContentType "application/json"
 
           if ($response.StatusCode -ge 200 -and $response.StatusCode -lt 300) {
               $jsonResponse = $response.Content | ConvertFrom-Json
               $runId = $jsonResponse.runId
               Write-Output "runId: $runId"
 
-              # Save runId to an environment variable for subsequent use
-              Write-Output "##[set-output name=run_id;]$runId"
+              # Store runId in an environment variable for subsequent steps
+              echo "run_id=$runId" >> $GITHUB_ENV
+
+              # Use runId in the next API call
+              $url2 = "https://fba4-202-173-125-59.ngrok-free.app/api/v4/run/$runId/runItemIds"
+              $response2 = Invoke-WebRequest -Uri $url2 -Method GET -Headers $headers -ContentType "application/json"
+
+              if ($response2.StatusCode -ge 200 -and $response2.StatusCode -lt 300) {
+                  $jsonResponse2 = $response2.Content | ConvertFrom-Json
+                  $runItemId = $jsonResponse2.RunItemIds[0]
+                  Write-Output "runItemId: $runItemId"
+          
+                  # Save runItemId to an environment variable for subsequent use
+                  echo "run_item_id=$runItemId" >> $GITHUB_ENV
+              } else {
+                  Write-Error "Failed to retrieve runItemId. HTTP status code: $($response2.StatusCode)"
+                  exit 1
+              }
           } else {
               Write-Error "Failed to retrieve runId. HTTP status code: $($response.StatusCode)"
-              exit 1
-          }
-
-          # Step 2: Call RunItemIds API with obtained runId to get runItemIds
-      - name: Get RunItemIds
-        id: get_run_item_ids
-        run: |
-          run_id=$runId
-          $url = "https://fba4-202-173-125-59.ngrok-free.app/api/v4/run/$run_id/runItemIds"
-          $response = Invoke-WebRequest -Uri $url -Method GET -Headers $headers -ContentType "application/json"
-          if ($response.StatusCode -ge 200 -and $response.StatusCode -lt 300) {
-              $jsonResponse = $response.Content | ConvertFrom-Json
-              $runItemId = $jsonResponse.RunItemIds[0]
-              Write-Output "runItemId: $runItemId"
-
-              # Save runId to an environment variable for subsequent use
-              Write-Output "##[set-output name=runItemId;]$runItemId"
-          } else {
-              Write-Error "Failed to retrieve runItemId. HTTP status code: $($response.StatusCode)"
               exit 1
           }
