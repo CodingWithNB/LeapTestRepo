@@ -30,7 +30,7 @@ jobs:
           
           try {
               # Make PUT request to start schedule
-              $response = Invoke-WebRequest -Uri $url -Method PUT -Headers $headers -ContentType "application/json" -ErrorAction Stop
+              $response = Invoke-RestMethod -Uri $url -Method PUT -Headers $headers -ContentType "application/json" -ErrorAction Stop
 
               # Check if starting schedule was successful (status code 200-299)
               if ($response.StatusCode -ge 200 -and $response.StatusCode -lt 300) {
@@ -134,3 +134,4 @@ jobs:
               Write-Error "Error occurred: $_"
               exit 1
           }
+
