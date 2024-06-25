@@ -60,7 +60,7 @@ jobs:
                       Write-Output $jsonResponse2 
 
                        # Access RunItemIds
-                      $runItemIds = $jsonResponse.RunItemIds
+                      $runItemIds = $jsonResponse2.RunItemIds
                       
                       # Check if RunItemIds array exists and is not empty
                     if ($runItemIds -and $runItemIds.Count -gt 0) {
