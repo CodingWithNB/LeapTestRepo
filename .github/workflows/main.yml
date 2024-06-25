@@ -26,7 +26,7 @@ jobs:
           
           # Define API URL for starting schedule
           $runScheduleId = "d41f169d-88d5-442e-b8ba-9afe9dc01c3a"
-          $url = "https://fba4-202-173-125-59.ngrok-free.app/api/v4/schedules/7fc95621-572e-4da3-9d7b-d98efdd98cc4/runNow"
+          $url = "https://fba4-202-173-125-59.ngrok-free.app/api/v4/schedules/$runScheduleId/runNow"
           
           try {
               # Make PUT request to start schedule
@@ -52,7 +52,7 @@ jobs:
                       Start-Sleep -Seconds $timeDelay
 
                       # Make API call to retrieve executedRunItems
-                      $executedRunItems = Invoke-RestMethod -Uri "https://fba4-202-173-125-59.ngrok-free.app/api/v4/runRunItems" -Method Get -Headers $headers -ContentType "application/json"
+                      $executedRunItems = Invoke-RestMethod -Uri "https://fba4-202-173-125-59.ngrok-free.app/api/v4/runRunItems/$runId" -Method Get -Headers $headers -ContentType "application/json"
 
                       # Filter out already processed runItems
                       $executedRunItems = $executedRunItems | Where-Object { $_ -notin $runItemsId }
@@ -61,47 +61,32 @@ jobs:
                           # Make API call to get runItem details
                           $runItem = Invoke-RestMethod -Uri "https://fba4-202-173-125-59.ngrok-free.app/api/v4/runItems/$runItemId" -Method Get -Headers $headers -ContentType "application/json"
 
-                          $status = $runItem.CaseStatus
+                          $status = $runItem.Status
 
                           switch ($status) {
                               "NoStatus", "Initializing", "Connecting", "Connected", "Running", "IsProcessing" {
                                   # Do nothing for these statuses
                                   continue
                               }
-                              "Passed", "Failed", "Error", "Inconclusive", "Timeout", "Cancelled", "Done" {
-                                  # Add logic to handle each status accordingly
-                                  switch ($status) {
-                                      "Passed" {
-                                          Write-Output "Status of runItem $runItemId: $status"
-                                          # Handle passed status
-                                          # Increment counters or perform other actions
-                                      }
-                                      "Failed" {
-                                          Write-Output "Status of runItem $runItemId: $status"
-                                          # Handle failed status
-                                          # Increment counters or perform other actions
-                                      }
-                                      "Error", "Inconclusive", "Timeout", "Cancelled" {
-                                          Write-Output "Status of runItem $runItemId: $status"
-                                          # Handle error status
-                                          # Increment counters or perform other actions
-                                      }
-                                      "Done" {
-                                          Write-Output "Status of runItem $runItemId: $status"
-                                          # Handle done status
-                                          # Increment counters or perform other actions
-                                      }
-                                  }
+                              "Passed" {
+                                  Write-Output "Status of runItem $runItemId: $status"
+                                  # Handle passed status
+                                  # Increment counters or perform other actions
+                              }
+                              "Failed", "Error", "Inconclusive", "Timeout", "Cancelled", "Done" {
+                                  Write-Output "Status of runItem $runItemId: $status"
+                                  # Handle failed or other statuses
+                                  # Increment counters or perform other actions
                               }
                               default {
                                   # Default case
                                   Write-Output "Unhandled status: $status"
                               }
                           }
-                      }
 
-                      # Add executed runItems to the list
-                      $runItemsId.AddRange($executedRunItems)
+                          # Add runItemId to processed list
+                          $runItemsId += $runItemId
+                      }
 
                       # Check if the runStatus is Finished
                       $runStatus = Invoke-RestMethod -Uri "https://fba4-202-173-125-59.ngrok-free.app/api/v4/runStatus/$runId" -Method Get -Headers $headers -ContentType "application/json"
@@ -134,4 +119,3 @@ jobs:
               Write-Error "Error occurred: $_"
               exit 1
           }
-
