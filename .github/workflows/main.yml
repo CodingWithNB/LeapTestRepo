@@ -41,6 +41,10 @@ jobs:
                   # Store runId in an environment variable for subsequent steps
                   echo "run_id=$runId" >> $env:GITHUB_ENV
 
+                    # Introduce a delay of 30 seconds (adjust as necessary)
+                  Write-Output "Waiting for 30 seconds before calling the second API..."
+                  Start-Sleep -Seconds 30
+                  
                   # Define API URL to retrieve runItemIds
                   $url2 = "https://fba4-202-173-125-59.ngrok-free.app/api/v4/run/$runId/runItemIds"
                   Write-Output "Calling URL for runItemIds: $url2"
