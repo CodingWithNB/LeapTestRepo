@@ -39,11 +39,18 @@ jobs:
 
               if ($response2.StatusCode -ge 200 -and $response2.StatusCode -lt 300) {
                   $jsonResponse2 = $response2.Content | ConvertFrom-Json
-                  $runItemId = $jsonResponse2.RunItemIds[0]
-                  Write-Output "runItemId: $runItemId"
-          
-                  # Save runItemId to an environment variable for subsequent use
-                  echo "run_item_id=$runItemId" >> $GITHUB_ENV
+                  
+                  # Check if RunItemIds array exists and is not empty
+                  if ($jsonResponse2.RunItemIds -and $jsonResponse2.RunItemIds.Count -gt 0) {
+                      $runItemId = $jsonResponse2.RunItemIds[0]
+                      Write-Output "runItemId: $runItemId"
+              
+                      # Save runItemId to an environment variable for subsequent use
+                      echo "run_item_id=$runItemId" >> $GITHUB_ENV
+                  } else {
+                      Write-Error "No RunItemIds found in API response."
+                      exit 1
+                  }
               } else {
                   Write-Error "Failed to retrieve runItemId. HTTP status code: $($response2.StatusCode)"
                   exit 1
