@@ -46,7 +46,7 @@ jobs:
                   Write-Output "Calling URL for runItemIds: $url2"
                   
                   # Make GET request to retrieve runItemIds
-                  $response2 = Invoke-WebRequest -Uri $url2 -Method GET -Headers $headers -ContentType "application/json" -ErrorAction Stop
+                  $response2 = Invoke-WebRequest -Uri $url2 -Method GET -Headers $headers -ContentType "application/json"
 
                   Write-Output "Response from API:"
                   Write-Output $response2.Content
