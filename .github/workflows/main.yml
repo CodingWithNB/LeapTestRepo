@@ -60,11 +60,12 @@ jobs:
                       $executedRunItems = $executedRunItems | Where-Object { $_ -notin $runItemsId }
 
                       foreach ($runItemId in $executedRunItems) {
+                      Write-Output "RunItemId :$runItemId"
                           # Make API call to get runItem details
                           $runItem = Invoke-RestMethod -Uri "https://fba4-202-173-125-59.ngrok-free.app/api/v4/runItems/$runItemId" -Method Get -Headers $headers -ContentType "application/json"
 
                           $status = $runItem.Status
-
+                             Write-Output "Status :$status"
                           switch ($runItem.Status) {
                               
                               "Passed" {
