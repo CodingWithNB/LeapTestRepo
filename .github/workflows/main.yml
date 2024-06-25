@@ -64,10 +64,7 @@ jobs:
                           $status = $runItem.Status
 
                           switch ($status) {
-                              "NoStatus", "Initializing", "Connecting", "Connected", "Running", "IsProcessing" {
-                                  # Do nothing for these statuses
-                                  continue
-                              }
+                              
                               "Passed" {
                                   Write-Output "Status of runItem $runItemId: $status"
                                   # Handle passed status
