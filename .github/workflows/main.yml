@@ -87,18 +87,18 @@ jobs:
               }
               # Define API URL to retrieve runItem and its status
               $url3 = "https://fba4-202-173-125-59.ngrok-free.app/api/v4/runItems/$runItemId"
-              $response3 = Invoke-WebRequest -Uri $ngrokUrl -Method GET -ContentType "application/json"  -Headers $headers -ErrorAction Stop
+              $response3 = Invoke-WebRequest -Uri $url3 -Method GET -ContentType "application/json"  -Headers $headers -ErrorAction Stop
 
                # Check if request was successful (status code 200-299)
-                if ($response.StatusCode -eq 200) {
-              $jsonResponse = $response.Content | ConvertFrom-Json
+                if ($response3.StatusCode -eq 200) {
+              $jsonResponse3 = $response3.Content | ConvertFrom-Json
             
             # Print parsed JSON response (for debugging purposes)
             Write-Output "Parsed JSON Response:"
-            Write-Output $jsonResponse
+            Write-Output $jsonResponse3
     
             # Access RunItemIds
-            $runItems = $jsonResponse.RunItems
+            $runItems = $jsonResponse3.RunItems
             
             # Check if RunItemIds array exists and is not empty
             if ($runItems -and $runItems.Count -gt 0) {
