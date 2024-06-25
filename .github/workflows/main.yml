@@ -49,9 +49,12 @@ jobs:
                   
                   # Check if RunItemIds array exists and is not empty
                   if ($jsonResponse2.RunItemIds -and $jsonResponse2.RunItemIds.Count -gt 0) {
-                      $runItemId = $jsonResponse2.RunItemIds[0]
-                      Write-Output "runItemId: $runItemId"
-              
+                      $runItemId = $jsonResponse2.RunItemIds
+                      # Check if RunItemIds array exists and is not empty
+                    if ($runItemIds -and $runItemIds.Count -gt 0) {
+                        $runItemId = $runItemIds[0]
+                        Write-Output "runItemId: $runItemId"
+                          
                       # Save runItemId to an environment variable for subsequent use
                       echo "run_item_id=$runItemId" >> $GITHUB_ENV
                   } else {
