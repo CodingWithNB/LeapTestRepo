@@ -46,8 +46,21 @@ jobs:
               exit 1
           }
 
-          # Example: Use $runId in the next API call or action
-          $url2 = "https://example.com/api/v1/runs/$runId/details"
-          $response2 = Invoke-WebRequest -Uri $url2 -Method GET -Headers $headers -ContentType "application/json"
+          # Step 2: Call RunItemIds API with obtained runId to get runItemIds
+      - name: Get RunItemIds
+        id: get_run_item_ids
+        run: |
+          run_id=$runId
+          $url = "https://fba4-202-173-125-59.ngrok-free.app/api/v4/run/$run_id/runItemIds"
+          $response = Invoke-WebRequest -Uri $url -Method GET -Headers $headers -ContentType "application/json"
+          if ($response.StatusCode -ge 200 -and $response.StatusCode -lt 300) {
+              $jsonResponse = $response.Content | ConvertFrom-Json
+              $runItemId = $jsonResponse.RunItemIds[0]
+              Write-Output "runItemId: $runItemId"
 
-          # Handle $response2 as needed
+              # Save runId to an environment variable for subsequent use
+              Write-Output "##[set-output name=runItemId;]$runItemId"
+          } else {
+              Write-Error "Failed to retrieve runItemId. HTTP status code: $($response.StatusCode)"
+              exit 1
+          }
