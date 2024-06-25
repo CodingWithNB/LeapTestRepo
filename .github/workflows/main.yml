@@ -66,18 +66,16 @@ jobs:
                           switch ($status) {
                               
                               "Passed" {
-                                  Write-Output "Status of runItem $runItemId: $status"
-                                  # Handle passed status
-                                  # Increment counters or perform other actions
+                                  Write-Output "Status of runItem $runItemId: Passed"
+                                   $passedCount++
                               }
                               "Failed", "Error", "Inconclusive", "Timeout", "Cancelled", "Done" {
-                                  Write-Output "Status of runItem $runItemId: $status"
-                                  # Handle failed or other statuses
-                                  # Increment counters or perform other actions
+                                Write-Output "Status of runItem $runItemId: $($runItem.Status)"
+                                  $failedCount++
                               }
                               default {
                                   # Default case
-                                  Write-Output "Unhandled status: $status"
+                                  Write-Output "Unhandled status: $($runItem.Status)"
                               }
                           }
 
