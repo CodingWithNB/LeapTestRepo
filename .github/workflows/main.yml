@@ -45,6 +45,8 @@ jobs:
                   $timeDelay = 60  # Delay in seconds
                   $isStillRunning = $true
                   $runItemsId = @()
+                  $passedCount = 0
+                  $failedCount = 0
 
                   do {
                       # Simulate waiting
@@ -63,10 +65,10 @@ jobs:
 
                           $status = $runItem.Status
 
-                          switch ($status) {
+                          switch ($runItem.Status) {
                               
                               "Passed" {
-                                  Write-Output "Status of runItem $runItemId: Passed"
+                                  Write-Output "Status of runItem $($runItem.Status): Passed"
                                    $passedCount++
                               }
                               "Failed", "Error", "Inconclusive", "Timeout", "Cancelled", "Done" {
