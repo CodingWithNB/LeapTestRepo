@@ -15,9 +15,10 @@ jobs:
         uses: actions/checkout@v2
       
       - name: Run Leapwork Automated Test flows, schedule Daily regression
-        
+      
 
         run: |
+          # Define PowerShell script inline
           $headers = @{
             "AccessKey" = "ASvAPneQYwUL1VTX"
             "ngrok-skip-browser-warning" = "69420"
@@ -31,11 +32,11 @@ jobs:
           try {
               # Make GET request
               $response = Invoke-WebRequest -Uri $ngrokUrl -Method GET -Headers $headers -ContentType "application/json" -ErrorAction Stop
-
+  
               # Print raw response (for debugging purposes)
               Write-Output "Raw Response:"
               Write-Output $response.Content
-
+  
               # Check if request was successful (status code 200-299)
               if ($response.StatusCode -eq 200) {
                   $jsonResponse = $response.Content | ConvertFrom-Json
@@ -43,7 +44,7 @@ jobs:
                   # Print parsed JSON response (for debugging purposes)
                   Write-Output "Parsed JSON Response:"
                   Write-Output $jsonResponse
-
+  
                   # Access RunItemIds
                   $runItemIds = $jsonResponse.RunItemIds
                   
