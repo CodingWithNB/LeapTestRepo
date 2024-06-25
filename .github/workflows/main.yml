@@ -101,6 +101,7 @@ jobs:
     
             # Access RunItemIds
             $runItems = $jsonResponse3.RunItems
+            Write-Output $runItems
             
             # Check if RunItemIds array exists and is not empty
             if ($runItems -and $runItems.Count -gt 0) {
@@ -108,9 +109,9 @@ jobs:
                 Write-Output "runItemId: $runItems"
                 
                 # Save runItemId to an environment variable for subsequent use
-                echo "run_item_id=$runItemId" >> $env:GITHUB_ENV
+                echo "runItems=$runItems" >> $env:GITHUB_ENV
             } else {
-                Write-Error "No RunItemIds found in API response."
+                Write-Error "No RunItems found in API response."
                 exit 1
             }
              }  
