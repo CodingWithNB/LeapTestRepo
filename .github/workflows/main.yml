@@ -37,15 +37,6 @@ jobs:
               exit 1
           }
 
-      - name: Use runId in next API call
-        shell: pwsh
-        run: |
-          $runId = $env:run_id  # Retrieve runId from environment variable
-          if (-not $runId) {
-              Write-Error "runId not found in environment variables."
-              exit 1
-          }
-
           # Step 2: Call RunItemIds API with obtained runId to get runItemIds
       - name: Get RunItemIds
         id: get_run_item_ids
