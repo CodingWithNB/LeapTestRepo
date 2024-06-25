@@ -73,7 +73,7 @@ jobs:
                                    $passedCount++
                               }
                               "Failed"{
-                                Write-Output "Status of runItem $runItemId: $($runItem.Status)"
+                                Write-Output "Status of runItem ${runItemId}: $($runItem.Status)"
                                   $failedCount++
                               }
                               default {
