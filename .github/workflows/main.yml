@@ -22,7 +22,7 @@ jobs:
             "ngrok-skip-browser-warning" = "69420"
           }
           $runScheduleId = "d41f169d-88d5-442e-b8ba-9afe9dc01c3a"
-          $url = "https://fba4-202-173-125-59.ngrok-free.app/api/v3/schedules"
+          $url = "https://fba4-202-173-125-59.ngrok-free.app/api/v4/schedules/7fc95621-572e-4da3-9d7b-d98efdd98cc4/runNow"
           $response = Invoke-WebRequest -Uri $url -Method GET -Headers $headers -ContentType "application/json"
 
           if ($response.StatusCode -ge 200 -and $response.StatusCode -lt 300) {
