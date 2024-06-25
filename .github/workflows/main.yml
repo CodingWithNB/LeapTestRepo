@@ -69,3 +69,4 @@ jobs:
               Write-Error "Failed to retrieve runId. HTTP status code: $($response.StatusCode)"
               exit 1
           }
+}
