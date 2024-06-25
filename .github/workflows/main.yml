@@ -71,7 +71,7 @@ jobs:
                                   Write-Output "Status of runItem $($runItem.Status): Passed"
                                    $passedCount++
                               }
-                              "Failed", "Error", "Inconclusive", "Timeout", "Cancelled", "Done" {
+                              "Failed"{
                                 Write-Output "Status of runItem $runItemId: $($runItem.Status)"
                                   $failedCount++
                               }
