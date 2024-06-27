@@ -24,7 +24,7 @@ jobs:
           }
           
           # Define API URL for starting schedule
-          $runScheduleId = "d41f169d-88d5-442e-b8ba-9afe9dc01c3a"
+          $runScheduleId = "896515e6-f7a0-4f38-8b32-6743329f964e"
           $url = "https://ed77-45-118-159-212.ngrok-free.app/api/v4/schedules/$runScheduleId/runNow"
           
           try {
