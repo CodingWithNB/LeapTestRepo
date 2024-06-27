@@ -60,15 +60,12 @@ jobs:
                       # Make API call to retrieve executedRunItems
                       $executedRunItems = Invoke-RestMethod -Uri "https://2569-45-118-159-212.ngrok-free.app/api/v4/run/$runId/runItemIds" -Method Get -Headers $headers -ContentType "application/json"
                       Write-Output "ExecutedRunItems: $executedRunItems"
-                      $runItemIds = $executedRunItems.RunItemIds
-                      foreach ($id in $runItemIds) {
-                          Write-Output "RunItemId: $id"
-                      }
-
+                      $executedRunItems = $executedRunItems.RunItemIds
+                      
                       # Filter out already processed runItems
                       $executedRunItems = $executedRunItems | Where-Object { $_ -notin $runItemsId }
                       Write-Output "NewExecutedRunItems: $executedRunItems"
-                      foreach ($runItemId in $executedRunItems) {
+                      foreach ($runItemId in $runItemIds) {
                           Write-Output "RunItemId: $runItemId"
                           # Make API call to get runItem details
                           $runItem = Invoke-RestMethod -Uri "https://2569-45-118-159-212.ngrok-free.app/api/v4/runItems/$runItemId" -Method Get -Headers $headers -ContentType "application/json"
