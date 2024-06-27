@@ -30,7 +30,7 @@ jobs:
           try {
               # Make PUT request to start schedule
               $response = Invoke-RestMethod -Uri $url -Method PUT -Headers $headers -ContentType "application/json" 
-
+               Write-Output "Waiting for $timeDelay seconds...: $response"
               # Check if starting schedule was successful (status code 200-299)
               if ($response.StatusCode -ge 200) {
                   $jsonResponse = $response.Content | ConvertFrom-Json
