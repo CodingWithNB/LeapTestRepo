@@ -29,12 +29,15 @@ jobs:
           
           try {
               # Make PUT request to start schedule
-              $response = Invoke-RestMethod -Uri $url -Method PUT -Headers $headers -ContentType "application/json" 
-               Write-Output "Waiting for $timeDelay seconds...: $response"
-              # Check if starting schedule was successful (status code 200-299)
-              if ($response.StatusCode -eq 200) {
-                  $jsonResponse = $response.Content | ConvertFrom-Json
-                  $runId = $jsonResponse.runId
+              $response = Invoke-RestMethod -Uri $url -Method PUT -Headers $headers -ContentType "application/json" -ErrorAction Stop
+              Write-Output "Response: $($response | ConvertTo-Json -Depth 10)"
+
+              # Check if starting schedule was successful
+              if ($response.StatusCode -ge 200 -and $response.StatusCode -lt 300) {
+                  $jsonResponse = $response | ConvertTo-Json -Depth 10
+                  Write-Output "JSON Response: $jsonResponse"
+                  
+                  $runId = $response.runId
                   Write-Output "runId: $runId"
 
                   # Store runId in an environment variable for subsequent steps
@@ -59,24 +62,23 @@ jobs:
                       $executedRunItems = $executedRunItems | Where-Object { $_ -notin $runItemsId }
 
                       foreach ($runItemId in $executedRunItems) {
-                      Write-Output "RunItemId :$runItemId"
+                          Write-Output "RunItemId: $runItemId"
                           # Make API call to get runItem details
                           $runItem = Invoke-RestMethod -Uri "https://ed77-45-118-159-212.ngrok-free.app/api/v4/runItems/$runItemId" -Method Get -Headers $headers -ContentType "application/json"
 
                           $status = $runItem.Status
-                             Write-Output "Status :$status"
+                          Write-Output "Status: $status"
+
                           switch ($runItem.Status) {
-                              
                               "Passed" {
                                   Write-Output "Status of runItem $($runItem.Status): Passed"
-                                   $passedCount++
+                                  $passedCount++
                               }
-                              "Failed"{
-                                Write-Output "Status of runItem ${runItemId}: $($runItem.Status)"
+                              "Failed" {
+                                  Write-Output "Status of runItem ${runItemId}: $($runItem.Status)"
                                   $failedCount++
                               }
                               default {
-                                  # Default case
                                   Write-Output "Unhandled status: $($runItem.Status)"
                               }
                           }
@@ -102,16 +104,16 @@ jobs:
 
                   } while ($isStillRunning)
 
-                  # After loop completes, send email with results (example using SendGrid)
-                  # Replace with your email sending logic
-                  # Example of SendGrid integration in PowerShell:
-                  # See previous example for Send-MailMessage usage
+                  Write-Output "Passed Count: $passedCount"
+                  Write-Output "Failed Count: $failedCount"
+                  
+                  # Here you can add logic to send an email with results or any other follow-up actions.
 
               } else {
                   Write-Error "Failed to start schedule. HTTP status code: $($response.StatusCode)"
                   exit 1
               }
-              
+
           } catch {
               Write-Error "Error occurred: $_"
               exit 1
