@@ -29,10 +29,10 @@ jobs:
           
           try {
               # Make PUT request to start schedule
-              $response = Invoke-RestMethod -Uri $url -Method PUT -Headers $headers -ContentType "application/json" -ErrorAction Stop
+              $response = Invoke-RestMethod -Uri $url -Method PUT -Headers $headers -ContentType "application/json" 
 
               # Check if starting schedule was successful (status code 200-299)
-              if ($response.StatusCode -ge 200 -and $response.StatusCode -lt 300) {
+              if ($response.StatusCode -ge 200) {
                   $jsonResponse = $response.Content | ConvertFrom-Json
                   $runId = $jsonResponse.runId
                   Write-Output "runId: $runId"
