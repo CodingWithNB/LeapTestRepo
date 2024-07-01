@@ -12,27 +12,26 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-      
+
       - name: Run Leapwork Automated Test flows, schedule Daily regression
         shell: pwsh
-        
         run: |
           # Define headers
           $headers = @{
             "AccessKey" = "iIF0R8P47CzjJaRG"
             "ngrok-skip-browser-warning" = "69488"
           }
-        
-          
+
           # Define API URL for starting schedule
           $runScheduleId = "7fc95621-572e-4da3-9d7b-d98efdd98cc4"
           $url = "https://2569-45-118-159-212.ngrok-free.app/api/v4/schedules/$runScheduleId/runNow"
-          
+
           try {
               # Make PUT request to start schedule
               $response = Invoke-RestMethod -Uri $url -Method PUT -Headers $headers -ContentType "application/json" -ErrorAction Stop
               Write-Output "Response: $($response | ConvertTo-Json -Depth 10)"
               Write-Output "Response Status Code: $response.StatusCode"
+
               # Check if starting schedule was successful
               if ('true') 
               {
@@ -51,6 +50,8 @@ jobs:
                   $runItemsId = @()
                   $passedCount = 0
                   $failedCount = 0
+                  $resultStatus = 1  # Assume all tests pass initially
+                  $testResults = @()  # Array to store test results
 
                   do {
                       # Simulate waiting
@@ -60,18 +61,22 @@ jobs:
                       # Make API call to retrieve executedRunItems
                       $executedRunItems = Invoke-RestMethod -Uri "https://2569-45-118-159-212.ngrok-free.app/api/v4/run/$runId/runItemIds" -Method Get -Headers $headers -ContentType "application/json"
                       Write-Output "ExecutedRunItems: $executedRunItems"
-                      $executedRunItems = $executedRunItems.RunItemIds
-                      
                       # Filter out already processed runItems
                       $executedRunItems = $executedRunItems | Where-Object { $_ -notin $runItemsId }
                       Write-Output "NewExecutedRunItems: $executedRunItems"
-                      foreach ($runItemId in $runItemIds) {
+                      foreach ($runItemId in $executedRunItems) {
                           Write-Output "RunItemId: $runItemId"
                           # Make API call to get runItem details
                           $runItem = Invoke-RestMethod -Uri "https://2569-45-118-159-212.ngrok-free.app/api/v4/runItems/$runItemId" -Method Get -Headers $headers -ContentType "application/json"
 
                           $status = $runItem.Status
-                          Write-Output "Status: $status"
+                          $testName = $runItem.Name
+                          Write-Output "Status: $status, Test Name: $testName"
+
+                          $testResults += [pscustomobject]@{
+                              TestName = $testName
+                              Status   = $status
+                          }
 
                           switch ($runItem.Status) {
                               "Passed" {
@@ -81,6 +86,7 @@ jobs:
                               "Failed" {
                                   Write-Output "Status of runItem ${runItemId}: $($runItem.Status)"
                                   $failedCount++
+                                  $resultStatus = 0  # Set resultStatus to 0 if any test fails
                               }
                               default {
                                   Write-Output "Unhandled status: $($runItem.Status)"
@@ -110,8 +116,23 @@ jobs:
 
                   Write-Output "Passed Count: $passedCount"
                   Write-Output "Failed Count: $failedCount"
-                  
-                  # Here you can add logic to send an email with results or any other follow-up actions.
+                  Write-Output "Result Status: $resultStatus"
+
+                  # Output test results to the pipeline logs
+                  foreach ($result in $testResults) {
+                      Write-Output "Test Name: $($result.TestName), Status: $($result.Status)"
+                  }
+
+                  # Save results to a file
+                  $resultFilePath = "test_results.json"
+                  $testResults | ConvertTo-Json -Depth 10 | Out-File -FilePath $resultFilePath
+                  Write-Output "Test results saved to $resultFilePath"
+
+                  # Upload the result file as an artifact
+                  Write-Output "Uploading test results as an artifact..."
+                  echo "::set-output name=result_status::$resultStatus"
+                  echo "result_status=$resultStatus" >> $env:GITHUB_ENV
+                  echo "result_file=$resultFilePath" >> $env:GITHUB_ENV
 
               } else {
                   Write-Error "Failed to start schedule. HTTP status code: $($response.StatusCode)"
@@ -122,3 +143,8 @@ jobs:
               Write-Error "Error occurred: $_"
               exit 1
           }
+      - name: Upload test results artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: test_results
+          path: test_results.json
