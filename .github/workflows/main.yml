@@ -24,7 +24,7 @@ jobs:
 
           # Define API URL for starting schedule
           $runScheduleId = "7fc95621-572e-4da3-9d7b-d98efdd98cc4"
-          $url = "https://2569-45-118-159-212.ngrok-free.app/api/v4/schedules/$runScheduleId/runNow"
+          $url = "https://b608-139-5-242-71.ngrok-free.app/api/v4/schedules/$runScheduleId/runNow"
 
           try {
               # Make PUT request to start schedule
@@ -59,7 +59,7 @@ jobs:
                       Start-Sleep -Seconds $timeDelay
 
                       # Make API call to retrieve executedRunItems
-                      $executedRunItems = Invoke-RestMethod -Uri "https://2569-45-118-159-212.ngrok-free.app/api/v4/run/$runId/runItemIds" -Method Get -Headers $headers -ContentType "application/json"
+                      $executedRunItems = Invoke-RestMethod -Uri "https://b608-139-5-242-71.ngrok-free.app/api/v4/run/$runId/runItemIds" -Method Get -Headers $headers -ContentType "application/json"
                       Write-Output "ExecutedRunItems: $executedRunItems"
                       # Filter out already processed runItems
                       $executedRunItems = $executedRunItems | Where-Object { $_ -notin $runItemsId }
@@ -67,7 +67,7 @@ jobs:
                       foreach ($runItemId in $executedRunItems) {
                           Write-Output "RunItemId: $runItemId"
                           # Make API call to get runItem details
-                          $runItem = Invoke-RestMethod -Uri "https://2569-45-118-159-212.ngrok-free.app/api/v4/runItems/$runItemId" -Method Get -Headers $headers -ContentType "application/json"
+                          $runItem = Invoke-RestMethod -Uri "https://b608-139-5-242-71.ngrok-free.app/api/v4/runItems/$runItemId" -Method Get -Headers $headers -ContentType "application/json"
 
                           $status = $runItem.Status
                           $testName = $runItem.Name
@@ -98,11 +98,11 @@ jobs:
                       }
 
                       # Check if the runStatus is Finished
-                      $runStatus = Invoke-RestMethod -Uri "https://2569-45-118-159-212.ngrok-free.app/api/v4/runStatus/$runId" -Method Get -Headers $headers -ContentType "application/json"
+                      $runStatus = Invoke-RestMethod -Uri "https://b608-139-5-242-71.ngrok-free.app/api/v4/runStatus/$runId" -Method Get -Headers $headers -ContentType "application/json"
 
                       if ($runStatus -eq "Finished") {
                           # Check if all runItems have been processed
-                          $allExecutedRunItems = Invoke-RestMethod -Uri "https://2569-45-118-159-212.ngrok-free.app/api/v4/runRunItems/$runId" -Method Get -Headers $headers -ContentType "application/json"
+                          $allExecutedRunItems = Invoke-RestMethod -Uri "https://b608-139-5-242-71.ngrok-free.app/api/v4/runRunItems/$runId" -Method Get -Headers $headers -ContentType "application/json"
                           if ($allExecutedRunItems.Count -gt 0 -and $allExecutedRunItems.Count -le $runItemsId.Count) {
                               $isStillRunning = $false
                           }
