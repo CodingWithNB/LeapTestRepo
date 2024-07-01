@@ -59,8 +59,8 @@ jobs:
                       Start-Sleep -Seconds $timeDelay
 
                       # Make API call to retrieve executedRunItems
-                      $executedRunItems = Invoke-RestMethod -Uri "https://b608-139-5-242-71.ngrok-free.app/api/v4/run/$runId/runItemIds" -Method Get -Headers $headers -ContentType "application/json"
-                      Write-Output "ExecutedRunItems: $executedRunItems"
+                      $runItemsResponse = Invoke-RestMethod -Uri "https://b608-139-5-242-71.ngrok-free.app/api/v4/run/$runId/runItemIds" -Method Get -Headers $headers -ContentType "application/json"
+                      Write-Output "ExecutedRunItems: $runItemsResponse"
                       # Filter out already processed runItems
                       $executedRunItems = $executedRunItems | Where-Object { $_ -notin $runItemsId }
                       Write-Output "NewExecutedRunItems: $executedRunItems"
