@@ -15,14 +15,12 @@ jobs:
       
       - name: Run Leapwork Automated Test flows, schedule Daily regression
         shell: pwsh
-        
         run: |
           # Define headers
           $headers = @{
             "AccessKey" = "Qa56IlDnepCscGjY"
             "ngrok-skip-browser-warning" = "69488"
           }
-        
           
           # Define API URL for starting schedule
           $runScheduleId = "1b5c204b-37dc-47f1-b24b-84588728b56d"
@@ -32,14 +30,13 @@ jobs:
               # Make PUT request to start schedule
               $response = Invoke-RestMethod -Uri $url -Method PUT -Headers $headers -ContentType "application/json" -ErrorAction Stop
               Write-Output "Response: $($response | ConvertTo-Json -Depth 10)"
-              Write-Output "Response Status Code: $response.StatusCode"
+              Write-Output "Response Status Code: $($response.StatusCode)"
               # Check if starting schedule was successful
-              if ('true') 
-              {
+              if ($response.StatusCode -eq 200) {
                   $jsonResponse = $response | ConvertTo-Json -Depth 10
                   Write-Output "JSON Response: $jsonResponse"
                   
-                  $runId = $response.runId
+                  $runId = $response.RunId
                   Write-Output "runId: $runId"
 
                   # Store runId in an environment variable for subsequent steps
@@ -59,11 +56,11 @@ jobs:
 
                       # Make API call to retrieve executedRunItems
                       $executedRunItems = Invoke-RestMethod -Uri "https://e64e-49-36-183-249.ngrok-free.app/api/v4/run/$runId/runItemIds" -Method Get -Headers $headers -ContentType "application/json"
-                      Write-Output "ExecutedRunItems: $executedRunItems"
+                      Write-Output "ExecutedRunItems: $($executedRunItems | ConvertTo-Json -Depth 10)"
                       # Filter out already processed runItems
                       $executedRunItems.RunItemIds = [string[]]$executedRunItems.RunItemIds
                       $newExecutedRunItems = $executedRunItems.RunItemIds | Where-Object { $_ -notin $runItemsId }
-                      Write-Output "NewExecutedRunItems: $newExecutedRunItems""
+                      Write-Output "NewExecutedRunItems: $($newExecutedRunItems | ConvertTo-Json -Depth 10)"
                       foreach ($runItemId in $newExecutedRunItems) {
                           Write-Output "RunItemId: $runItemId"
                           # Make API call to get runItem details
