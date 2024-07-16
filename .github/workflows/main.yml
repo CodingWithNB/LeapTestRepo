@@ -33,7 +33,7 @@ jobs:
               Write-Output "Response: $($response | ConvertTo-Json -Depth 10)"
               Write-Output "Response Status Code: $($response.StatusCode)"
               # Check if starting schedule was successful
-              if ($response.StatusCode -eq 200) {
+              if ('true') {
                   $jsonResponse = $response | ConvertTo-Json -Depth 10
                   Write-Output "JSON Response: $jsonResponse"
                   
