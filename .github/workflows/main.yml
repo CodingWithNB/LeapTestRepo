@@ -88,7 +88,7 @@ jobs:
                       }
 
                       # Check if the runStatus is Finished
-                      Write-Output "RunId for RunStatus  : $runStatus"
+                      Write-Output "RunId for RunStatus  : $runId"
                       $runStatus = Invoke-RestMethod -Uri "https://e64e-49-36-183-249.ngrok-free.app/api/v4/$runId/status" -Method Get -Headers $headers -ContentType "application/json"
                       Write-Output "Run Status : $runStatus"
                       if ($runStatus -eq "Finished") {
