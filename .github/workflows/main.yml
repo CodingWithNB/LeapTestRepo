@@ -68,8 +68,11 @@ jobs:
                           $runItem = Invoke-RestMethod -Uri "https://e64e-49-36-183-249.ngrok-free.app/api/v4/runItems/$runItemId" -Method Get -Headers $headers -ContentType "application/json"
 
                           $status = $runItem.Status
+                          $flowTitle = $runItem.FlowInfo.FlowTitle
+                          
                           Write-Output "Status: $status"
-
+                          Write-Output "Flow Title: $flowTitle"
+                          
                           switch ($runItem.Status) {
                               "NoStatus" {
                                   # Remove runItemId from the list
@@ -97,6 +100,7 @@ jobs:
                               }
                               "Passed" {
                                   Write-Output "Status of runItem $($runItemId): Passed"
+                                  $runItemsDetails += @{ 'RunItemId' = $runItemId; 'FlowTitle' = $flowTitle }
                                   $passedCount++
                               }
                               "Failed" {
