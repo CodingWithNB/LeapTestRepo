@@ -94,6 +94,9 @@ jobs:
                       if ($runStatus -eq "Finished") {
                           # Check if all runItems have been processed
                           $allExecutedRunItems = Invoke-RestMethod -Uri "https://e64e-49-36-183-249.ngrok-free.app/api/v4/runRunItems/$runId" -Method Get -Headers $headers -ContentType "application/json"
+                          Write-Output "All Executed Run Items : $allExecutedRunItems"
+                          Write-Output "All Executed Run Items Count: $($allExecutedRunItems.Count)"
+                          Write-Output "Processed Run Items Count: $($runItemsId.Count)"
                           if ($allExecutedRunItems.Count -gt 0 -and $allExecutedRunItems.Count -le $runItemsId.Count) {
                               $isStillRunning = $false
                           }
