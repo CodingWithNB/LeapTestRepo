@@ -71,11 +71,26 @@ jobs:
                           Write-Output "Status: $status"
 
                           switch ($runItem.Status) {
-                             "NoStatus",
-                              "Initializing",
-                              "Connecting",
-                              "Connected",
-                              "Running",
+                              "NoStatus" {
+                                  # Remove runItemId from the list
+                                  $executedRunItems.RunItemIds = $executedRunItems.RunItemIds | Where-Object { $_ -ne $runItemId }
+                              }
+                              "Initializing" {
+                                  # Remove runItemId from the list
+                                  $executedRunItems.RunItemIds = $executedRunItems.RunItemIds | Where-Object { $_ -ne $runItemId }
+                              }
+                              "Connecting" {
+                                  # Remove runItemId from the list
+                                  $executedRunItems.RunItemIds = $executedRunItems.RunItemIds | Where-Object { $_ -ne $runItemId }
+                              }
+                              "Connected" {
+                                  # Remove runItemId from the list
+                                  $executedRunItems.RunItemIds = $executedRunItems.RunItemIds | Where-Object { $_ -ne $runItemId }
+                              }
+                              "Running" {
+                                  # Remove runItemId from the list
+                                  $executedRunItems.RunItemIds = $executedRunItems.RunItemIds | Where-Object { $_ -ne $runItemId }
+                              }
                               "IsProcessing" {
                                   # Remove runItemId from the list
                                   $executedRunItems.RunItemIds = $executedRunItems.RunItemIds | Where-Object { $_ -ne $runItemId }
@@ -88,11 +103,20 @@ jobs:
                                   Write-Output "Status of runItem $($runItemId): Failed"
                                   $failedCount++
                               }
-                              "Error",
-                              "Inconclusive",
-                              "Timeout",
+                              "Error" {
+                                  Write-Output "Status of runItem $($runItemId): Error"
+                                  $errorCount++
+                              }
+                              "Inconclusive" {
+                                  Write-Output "Status of runItem $($runItemId): Inconclusive"
+                                  $errorCount++
+                              }
+                              "Timeout" {
+                                  Write-Output "Status of runItem $($runItemId): Timeout"
+                                  $errorCount++
+                              }
                               "Cancelled" {
-                                  Write-Output "Status of runItem $($runItemId): $status"
+                                  Write-Output "Status of runItem $($runItemId): Cancelled"
                                   $errorCount++
                               }
                               "Done" {
