@@ -164,6 +164,17 @@ jobs:
                   Write-Output "Failed Count: $failedCount"
                   Write-Output "Error Count: $errorCount"
                   # Here you can add logic to send an email with results or any other follow-up actions.
+                   # Save result to a file (Excel simulation)
+                    echo "Passed Count, $passedCount " > output.csv
+                    echo "Failed Count, $failed Count" >> output.csv
+          
+                    echo "Result saved to output.csv"
+
+                  - name: Upload output file
+                    uses: actions/upload-artifact@v3
+                    with:
+                      name: output-csv
+                      path: output.csv
 
               } else {
                   Write-Error "Failed to start schedule. HTTP status code: $($response.StatusCode)"
