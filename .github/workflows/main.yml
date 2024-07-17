@@ -71,11 +71,11 @@ jobs:
                           Write-Output "Status: $status"
 
                           switch ($runItem.Status) {
-                             "NoStatus"
-                              "Initializing"
-                              "Connecting"
-                              "Connected"
-                              "Running"
+                             "NoStatus",
+                              "Initializing",
+                              "Connecting",
+                              "Connected",
+                              "Running",
                               "IsProcessing" {
                                   # Remove runItemId from the list
                                   $executedRunItems.RunItemIds = $executedRunItems.RunItemIds | Where-Object { $_ -ne $runItemId }
@@ -88,9 +88,9 @@ jobs:
                                   Write-Output "Status of runItem $($runItemId): Failed"
                                   $failedCount++
                               }
-                              "Error"
-                              "Inconclusive"
-                              "Timeout"
+                              "Error",
+                              "Inconclusive",
+                              "Timeout",
                               "Cancelled" {
                                   Write-Output "Status of runItem $($runItemId): $status"
                                   $errorCount++
