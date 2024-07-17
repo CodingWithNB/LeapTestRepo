@@ -49,6 +49,7 @@ jobs:
                   $passedCount = 0
                   $failedCount = 0
                   $errorCount = 0
+                  $runItemsDetails = @()  # Initialize array to store run item details
 
                   do {
                       # Simulate waiting
@@ -175,12 +176,6 @@ jobs:
           
                     echo "Result saved to output.csv"
 
-                  -name: Upload output file
-                    uses: actions/upload-artifact@v3
-                    with:
-                      name: output-csv
-                      path: output.csv
-
               } else {
                   Write-Error "Failed to start schedule. HTTP status code: $($response.StatusCode)"
                   exit 1
@@ -190,3 +185,9 @@ jobs:
               Write-Error "Error occurred: $_"
               exit 1
           }
+
+           - name: Upload output file
+            uses: actions/upload-artifact@v3
+            with:
+              name: output-csv
+              path: output.csv
