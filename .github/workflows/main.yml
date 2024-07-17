@@ -48,6 +48,7 @@ jobs:
                   $runItemsId = @()
                   $passedCount = 0
                   $failedCount = 0
+                  $errorCount = 0
 
                   do {
                       # Simulate waiting
@@ -70,18 +71,44 @@ jobs:
                           Write-Output "Status: $status"
 
                           switch ($runItem.Status) {
+                             "NoStatus"
+                              "Initializing"
+                              "Connecting"
+                              "Connected"
+                              "Running"
+                              "IsProcessing" {
+                                  # Remove runItemId from the list
+                                  $executedRunItems.RunItemIds = $executedRunItems.RunItemIds | Where-Object { $_ -ne $runItemId }
+                              }
                               "Passed" {
-                                  Write-Output "Status of runItem $($runItem.Status): Passed"
+                                  Write-Output "Status of runItem $($runItemId): Passed"
                                   $passedCount++
                               }
                               "Failed" {
-                                  Write-Output "Status of runItem ${runItemId}: $($runItem.Status)"
+                                  Write-Output "Status of runItem $($runItemId): Failed"
                                   $failedCount++
+                              }
+                              "Error"
+                              "Inconclusive"
+                              "Timeout"
+                              "Cancelled" {
+                                  Write-Output "Status of runItem $($runItemId): $status"
+                                  $errorCount++
+                              }
+                              "Done" {
+                                  Write-Output "Status of runItem $($runItemId): Done"
+                                  # Determine if Done status should be considered Passed or Failed
+                                  if ($isDoneStatusAsSuccess) {
+                                      $passedCount++
+                                  } else {
+                                      $failedCount++
+                                  }
                               }
                               default {
                                   Write-Output "Unhandled status: $($runItem.Status)"
                               }
                           }
+
 
                           # Add runItemId to processed list
                           $runItemsId += $runItemId
@@ -94,8 +121,8 @@ jobs:
                       if ($($runStatus.Status) -eq "Finished") {
                           # Check if all runItems have been processed
                           $allExecutedRunItems = Invoke-RestMethod -Uri "https://e64e-49-36-183-249.ngrok-free.app/api/v4/run/$runId/runItemIds" -Method Get -Headers $headers -ContentType "application/json"
-                          Write-Output "All Executed Run Items : $allExecutedRunItems"
-                          Write-Output "All Executed Run Items Count: $($allExecutedRunItems.Count)"
+                         Write-Output "All Executed Run Items: $($allExecutedRunItems | ConvertTo-Json -Depth 10)"
+                          Write-Output "All Executed Run Items Count: $($allExecutedRunItems.RunItemIds.Count)"
                           Write-Output "Processed Run Items Count: $($runItemsId.Count)"
                           if ($allExecutedRunItems.Count -gt 0 -and $allExecutedRunItems.Count -le $runItemsId.Count) {
                               $isStillRunning = $false
@@ -110,7 +137,7 @@ jobs:
 
                   Write-Output "Passed Count: $passedCount"
                   Write-Output "Failed Count: $failedCount"
-                  
+                  Write-Output "Error Count: $errorCount"
                   # Here you can add logic to send an email with results or any other follow-up actions.
 
               } else {
