@@ -170,7 +170,16 @@ jobs:
                    # Save result to a file (Excel simulation)
                     echo "Passed Count, $passedCount " > output.csv
                     echo "Failed Count, $failedCount" >> output.csv
-                    echo "Result saved to output.csv"
+                    
+                     # Save results to a CSV file
+                  $csvContent = @()
+                  foreach ($item in $runItemsDetails) {
+                      $csvContent += "$($item.FlowTitle),$($item.Status)"
+                  }
+                  $csvContent += "Passed Count,$passedCount"
+                  $csvContent += "Failed Count,$failedCount"
+                  $csvContent | Out-File -FilePath output.csv -Encoding utf8
+                    
 
               } else {
                   Write-Error "Failed to start schedule. HTTP status code: $($response.StatusCode)"
