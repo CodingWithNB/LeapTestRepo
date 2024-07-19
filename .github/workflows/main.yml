@@ -190,7 +190,6 @@ jobs:
               Write-Error "Error occurred: $_"
               exit 1
           }
-
       - name: Upload output file
         uses: actions/upload-artifact@v3
         with:
