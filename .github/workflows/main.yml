@@ -167,17 +167,17 @@ jobs:
                   Write-Output "Failed Count: $failedCount"
                   Write-Output "Error Count: $errorCount"
                   # Here you can add logic to send an email with results or any other follow-up actions.
-                   # Save result to a file (Excel simulation)
-                    echo "Passed Count, $passedCount " > output.csv
-                    echo "Failed Count, $failedCount" >> output.csv
+                   Write-Output "Passed Count: $($runItemsDetails | Where-Object { $_.Status -eq 'Passed' }).Count"
+                  Write-Output "Failed Count: $($runItemsDetails | Where-Object { $_.Status -eq 'Failed' }).Count"
                     
                      # Save results to a CSV file
-                  $csvContent = @()
+                 # Save results to a CSV file
+                  $csvContent = @("Flow Title,Passed Count,Failed Count")
+                  $passedCount = ($runItemsDetails | Where-Object { $_.Status -eq 'Passed' }).Count
+                  $failedCount = ($runItemsDetails | Where-Object { $_.Status -eq 'Failed' }).Count
                   foreach ($item in $runItemsDetails) {
-                      $csvContent += "$($item.FlowTitle),$($item.Status)"
+                      $csvContent += "$($item.FlowTitle),$passedCount,$failedCount"
                   }
-                  $csvContent += "Passed Count,$passedCount"
-                  $csvContent += "Failed Count,$failedCount"
                   $csvContent | Out-File -FilePath output.csv -Encoding utf8
                     
 
