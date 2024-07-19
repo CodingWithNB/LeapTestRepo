@@ -43,7 +43,7 @@ jobs:
                   $timeDelay = 60  # Delay in seconds
                   $isStillRunning = $true
                   $runItemsId = @()
-                  $runItemsDetails = @()  # Initialize array to store run item details
+                  $runItemsDetails = @()
 
                   do {
                       # Simulate waiting
@@ -68,68 +68,11 @@ jobs:
                           Write-Output "Status: $status"
                           Write-Output "Flow Title: $flowTitle"
                           
-                          switch ($runItem.Status) {
-                              "NoStatus" {
-                                  # Remove runItemId from the list
-                                  $executedRunItems.RunItemIds = $executedRunItems.RunItemIds | Where-Object { $_ -ne $runItemId }
-                              }
-                              "Initializing" {
-                                  # Remove runItemId from the list
-                                  $executedRunItems.RunItemIds = $executedRunItems.RunItemIds | Where-Object { $_ -ne $runItemId }
-                              }
-                              "Connecting" {
-                                  # Remove runItemId from the list
-                                  $executedRunItems.RunItemIds = $executedRunItems.RunItemIds | Where-Object { $_ -ne $runItemId }
-                              }
-                              "Connected" {
-                                  # Remove runItemId from the list
-                                  $executedRunItems.RunItemIds = $executedRunItems.RunItemIds | Where-Object { $_ -ne $runItemId }
-                              }
-                              "Running" {
-                                  # Remove runItemId from the list
-                                  $executedRunItems.RunItemIds = $executedRunItems.RunItemIds | Where-Object { $_ -ne $runItemId }
-                              }
-                              
-                              "IsProcessing" {
-                                  # Remove runItemId from the list
-                                  $executedRunItems.RunItemIds = $executedRunItems.RunItemIds | Where-Object { $_ -ne $runItemId }
-                              }
-                              "Passed" {
-                                  Write-Output "Status of runItem $($runItemId): Passed"
-                                  $runItemsDetails += [pscustomobject]@{ 'FlowTitle' = $flowTitle; 'Status' = 'Passed' }
-                              }
-                              "Failed" {
-                                  Write-Output "Status of runItem $($runItemId): Failed"
-                                  $runItemsDetails += [pscustomobject]@{ 'FlowTitle' = $flowTitle; 'Status' = 'Failed' }
-                              }
-                              "Error" {
-                                  Write-Output "Status of runItem $($runItemId): Error"
-                                  $runItemsDetails += [pscustomobject]@{ 'FlowTitle' = $flowTitle; 'Status' = 'Error' }
-                              }
-                              "Inconclusive" {
-                                  Write-Output "Status of runItem $($runItemId): Inconclusive"
-                                  $runItemsDetails += [pscustomobject]@{ 'FlowTitle' = $flowTitle; 'Status' = 'Inconclusive' }
-                              }
-                              "Timeout" {
-                                  Write-Output "Status of runItem $($runItemId): Timeout"
-                                  $runItemsDetails += [pscustomobject]@{ 'FlowTitle' = $flowTitle; 'Status' = 'Timeout' }
-                              }
-                              "Cancelled" {
-                                  Write-Output "Status of runItem $($runItemId): Cancelled"
-                                  $runItemsDetails += [pscustomobject]@{ 'FlowTitle' = $flowTitle; 'Status' = 'Cancelled' }
-                              }
-                              "Done" {
-                                  Write-Output "Status of runItem $($runItemId): Done"
-                                  # Determine if Done status should be considered Passed or Failed
-                                  if ($isDoneStatusAsSuccess) {
-                                      $runItemsDetails += [pscustomobject]@{ 'FlowTitle' = $flowTitle; 'Status' = 'Passed' }
-                                  } else {
-                                      $runItemsDetails += [pscustomobject]@{ 'FlowTitle' = $flowTitle; 'Status' = 'Failed' }
-                                  }
-                              }
-                              default {
-                                  Write-Output "Unhandled status: $($runItem.Status)"
-                              }
+                          # Add runItem details to the list
+                          $runItemsDetails += [pscustomobject]@{
+                              'RunItemId' = $runItemId
+                              'FlowTitle' = $flowTitle
+                              'Status' = $status
                           }
 
                           # Add runItemId to processed list
@@ -158,18 +101,19 @@ jobs:
 
                   } while ($isStillRunning)
 
-                  $passedCount = ($runItemsDetails | Where-Object { $_.Status -eq 'Passed' }).Count
-                  $failedCount = ($runItemsDetails | Where-Object { $_.Status -eq 'Failed' }).Count
-
-                  Write-Output "Passed Count: $passedCount"
-                  Write-Output "Failed Count: $failedCount"
-
-                  # Save results to a CSV file
+                  # Prepare results for CSV
                   $csvContent = @("Flow Title,Passed Count,Failed Count")
-                  foreach ($item in $runItemsDetails) {
-                      $csvContent += "$($item.FlowTitle),$($item.Status -eq 'Passed' ? 1 : 0),$($item.Status -eq 'Failed' ? 1 : 0)"
+                  $groupedRunItems = $runItemsDetails | Group-Object -Property FlowTitle
+                  foreach ($group in $groupedRunItems) {
+                      $flowTitle = $group.Name
+                      $passedCount = ($group.Group | Where-Object { $_.Status -eq 'Passed' }).Count
+                      $failedCount = ($group.Group | Where-Object { $_.Status -eq 'Failed' }).Count
+                      $csvContent += "$flowTitle,$passedCount,$failedCount"
                   }
+
+                  # Save CSV content to a file
                   $csvContent | Out-File -FilePath output.csv -Encoding utf8
+                  Write-Output "Results saved to output.csv"
 
               } else {
                   Write-Error "Failed to start schedule. HTTP status code: $($response.StatusCode)"
