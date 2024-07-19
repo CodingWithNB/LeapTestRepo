@@ -100,7 +100,6 @@ jobs:
                       }
 
                   } while ($isStillRunning)
-
                   # Prepare results for CSV
                   $csvContent = @("Flow Title,Passed Count,Failed Count")
                   $groupedRunItems = $runItemsDetails | Group-Object -Property FlowTitle
