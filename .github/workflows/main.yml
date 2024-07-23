@@ -25,8 +25,8 @@ jobs:
           $schedulesResponse = Invoke-RestMethod -Uri $scheduleApiUrl -Method Get -Headers $headers -ContentType "application/json"
           $scheduleIds = $schedulesResponse | ForEach-Object { $_.Id }
 
-          # Initialize the CSV content
-          $csvContent = @("Flow Title,Passed Count,Failed Count")
+          # Initialize a hashtable to store cumulative results
+          $results = @{}
 
           foreach ($scheduleId in $scheduleIds) {
             Write-Output "Processing Schedule ID: $scheduleId"
@@ -118,7 +118,17 @@ jobs:
                         $flowTitle = $group.Name
                         $passedCount = ($group.Group | Where-Object { $_.Status -eq 'Passed' }).Count
                         $failedCount = ($group.Group | Where-Object { $_.Status -eq 'Failed' }).Count
-                        $csvContent += "$flowTitle,$passedCount,$failedCount"
+
+                        if (-not $results.ContainsKey($flowTitle)) {
+                            $results[$flowTitle] = [pscustomobject]@{
+                                'FlowTitle' = $flowTitle
+                                'PassedCount' = 0
+                                'FailedCount' = 0
+                            }
+                        }
+
+                        $results[$flowTitle].PassedCount += $passedCount
+                        $results[$flowTitle].FailedCount += $failedCount
                     }
 
                 } else {
@@ -130,6 +140,12 @@ jobs:
                 Write-Error "Error occurred: $_"
                 exit 1
             }
+          }
+
+          # Prepare CSV content
+          $csvContent = "Flow Title,Passed Count,Failed Count"
+          foreach ($result in $results.Values) {
+              $csvContent += "$($result.FlowTitle),$($result.PassedCount),$($result.FailedCount)"
           }
 
           # Save CSV content to a file
