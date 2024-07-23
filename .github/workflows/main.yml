@@ -16,7 +16,7 @@ jobs:
         run: |
           # Define headers
           $headers = @{
-            "AccessKey" = "$env:ACCESS_KEY"
+            "AccessKey" = "$secrets:ACCESS_KEY"
             "ngrok-skip-browser-warning" = "69488"
           }
 
