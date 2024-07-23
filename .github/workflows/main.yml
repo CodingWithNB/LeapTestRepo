@@ -15,6 +15,7 @@ jobs:
         shell: pwsh
         run: |
           # Define headers
+          echo "ACCESS_KEY: $env:ACCESS_KEY"
           $headers = @{
             "AccessKey" = "$secrets:ACCESS_KEY"
             "ngrok-skip-browser-warning" = "69488"
