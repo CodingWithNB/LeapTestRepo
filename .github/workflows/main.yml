@@ -145,7 +145,7 @@ jobs:
           # Prepare CSV content
           $csvContent = "Flow Title,Passed Count,Failed Count"
           foreach ($result in $results.Values) {
-              $csvContent += "$($result.FlowTitle),$($result.PassedCount),$($result.FailedCount)"
+              $csvContent += "`n$($result.FlowTitle),$($result.PassedCount),$($result.FailedCount)"
           }
 
           # Save CSV content to a file
