@@ -13,5 +13,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Print Access Key
-        run: echo "Access Key is: ${{ secrets.ACCESS_KEY }}"
+      - name: Use Access Key in a Script
+        run: |
+          echo "Using Access Key in a script..."
+          ./use-access-key.sh
+        env:
+          ACCESS_KEY: ${{ secrets.ACCESS_KEY }}
