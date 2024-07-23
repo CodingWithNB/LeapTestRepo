@@ -15,7 +15,8 @@ jobs:
         shell: pwsh
         run: |
           # Define headers
-          echo "ACCESS_KEY: $env:TIME_DELAY"
+          echo "ACCESS_KEY: $env:ACCESS_KEY"
+          echo "TIME_DELAY: $env:TIME_DELAY"
           $headers = @{
             "AccessKey" = "$env:ACCESS_KEY"
             "ngrok-skip-browser-warning" = "69488"
