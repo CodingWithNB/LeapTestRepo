@@ -12,11 +12,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
       - name: Run Leapwork Automated Test flows for multiple schedules
-        shell: pwsh
+        shell: pwsh 
         run: |
           # Define headers
           $headers = @{
-            "AccessKey" = "Qa56IlDnepCscGjY"
+            "AccessKey" = ${{ secrets.ACCESS_KEY }}
             "ngrok-skip-browser-warning" = "69488"
           }
 
