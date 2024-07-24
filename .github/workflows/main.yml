@@ -56,15 +56,14 @@ jobs:
                     echo "run_id=$runId" >> $env:GITHUB_ENV
 
                     # Initialize variables
-                    $timeDelay = 60  # Delay in seconds
                     $isStillRunning = $true
                     $runItemsId = @()
                     $runItemsDetails = @()
 
                     do {
                         # Simulate waiting
-                        Write-Output "Waiting for $timeDelay seconds..."
-                        Start-Sleep -Seconds $timeDelay
+                        Write-Output "Waiting for ${{ env.TIME_DELAY }} seconds..."
+                        Start-Sleep -Seconds ${{ env.TIME_DELAY }}
 
                         # Make API call to retrieve executedRunItems
                         $executedRunItems = Invoke-RestMethod -Uri "https://3407-45-118-159-4.ngrok-free.app/api/v4/run/$runId/runItemIds" -Method Get -Headers $headers -ContentType "application/json"
