@@ -14,14 +14,14 @@ jobs:
       - name: Run Leapwork Automated Test flows for multiple schedules
         shell: pwsh
         env: 
-          TIME_DELAY : ${{vars.TIME_DELAY}}
+          TIME_DELAY: ${{ vars.TIME_DELAY }}
         
         run: |
           # Define headers
-          echo "ACCESS_KEY: ${{secrets.ACCESS_KEY}}"
-          echo "TIME_DELAY: ${{env:TIME_DELAY}}"
+          echo "ACCESS_KEY: ${{ secrets.ACCESS_KEY }}"
+          echo "TIME_DELAY: ${{ env.TIME_DELAY }}"
           $headers = @{
-            "AccessKey" = ${{secrets.ACCESS_KEY}}
+            "AccessKey" = "${{ secrets.ACCESS_KEY }}"
             "ngrok-skip-browser-warning" = "69488"
           }
 
