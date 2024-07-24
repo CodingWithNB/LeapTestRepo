@@ -61,8 +61,8 @@ jobs:
 
                     do {
                         # Simulate waiting
-                        Write-Output "Waiting for ${{ env.TIME_DELAY }} seconds..."
-                        Start-Sleep -Seconds ${{ env.TIME_DELAY }}
+                        Write-Output "Waiting for ${{ vars.TIME_DELAY }} seconds..."
+                        Start-Sleep -Seconds ${{ vars.TIME_DELAY }}
 
                         # Make API call to retrieve executedRunItems
                         $executedRunItems = Invoke-RestMethod -Uri "${{ vars.BASE_URL }}/api/v4/run/$runId/runItemIds" -Method Get -Headers $headers -ContentType "application/json"
