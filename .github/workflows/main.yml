@@ -24,6 +24,7 @@ jobs:
 
           # Fetch schedule IDs from the API
           $scheduleApiUrl = "${{ vars.BASE_URL }}/api/v4/schedules"
+          echo "Schedule Api Url : $scheduleApiUrl"
           $schedulesResponse = Invoke-RestMethod -Uri $scheduleApiUrl -Method Get -Headers $headers -ContentType "application/json"
           $scheduleIds = $schedulesResponse | ForEach-Object { $_.Id }
 
