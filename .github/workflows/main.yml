@@ -84,37 +84,67 @@ jobs:
 
                             # Handle different statuses
                             switch ($runItem.Status) {
-                                "NoStatus" { }
-                                "Initializing" { }
-                                "Connecting" { }
-                                "Connected" { }
-                                "Running" { }
-                                "IsProcessing" { }
-                                "Passed" {
-                                    Write-Output "Status of runItem $($runItemId): Passed"
-                                }
-                                "Failed" {
-                                    Write-Output "Status of runItem $($runItemId): Failed"
-                                }
-                                "Error" {
-                                    Write-Output "Status of runItem $($runItemId): Error"
-                                }
-                                "Inconclusive" {
-                                    Write-Output "Status of runItem $($runItemId): Inconclusive"
-                                }
-                                "Timeout" {
-                                    Write-Output "Status of runItem $($runItemId): Timeout"
-                                }
-                                "Cancelled" {
-                                    Write-Output "Status of runItem $($runItemId): Cancelled"
-                                }
-                                "Done" {
-                                    Write-Output "Status of runItem $($runItemId): Done"
-                                }
-                                default {
-                                    Write-Output "Unhandled status: $($runItem.Status)"
-                                }
-                            }
+                              "NoStatus" {
+                                  # Remove runItemId from the list
+                                  $executedRunItems.RunItemIds = $executedRunItems.RunItemIds | Where-Object { $_ -ne $runItemId }
+                              }
+                              "Initializing" {
+                                  # Remove runItemId from the list
+                                  $executedRunItems.RunItemIds = $executedRunItems.RunItemIds | Where-Object { $_ -ne $runItemId }
+                              }
+                              "Connecting" {
+                                  # Remove runItemId from the list
+                                  $executedRunItems.RunItemIds = $executedRunItems.RunItemIds | Where-Object { $_ -ne $runItemId }
+                              }
+                              "Connected" {
+                                  # Remove runItemId from the list
+                                  $executedRunItems.RunItemIds = $executedRunItems.RunItemIds | Where-Object { $_ -ne $runItemId }
+                              }
+                              "Running" {
+                                  # Remove runItemId from the list
+                                  $executedRunItems.RunItemIds = $executedRunItems.RunItemIds | Where-Object { $_ -ne $runItemId }
+                              }
+                              "IsProcessing" {
+                                  # Remove runItemId from the list
+                                  $executedRunItems.RunItemIds = $executedRunItems.RunItemIds | Where-Object { $_ -ne $runItemId }
+                              }
+                              "Passed" {
+                                  Write-Output "Status of runItem $($runItemId): Passed"
+                                  $passedCount++
+                              }
+                              "Failed" {
+                                  Write-Output "Status of runItem $($runItemId): Failed"
+                                  $failedCount++
+                              }
+                              "Error" {
+                                  Write-Output "Status of runItem $($runItemId): Error"
+                                  $errorCount++
+                              }
+                              "Inconclusive" {
+                                  Write-Output "Status of runItem $($runItemId): Inconclusive"
+                                  $errorCount++
+                              }
+                              "Timeout" {
+                                  Write-Output "Status of runItem $($runItemId): Timeout"
+                                  $errorCount++
+                              }
+                              "Cancelled" {
+                                  Write-Output "Status of runItem $($runItemId): Cancelled"
+                                  $errorCount++
+                              }
+                              "Done" {
+                                  Write-Output "Status of runItem $($runItemId): Done"
+                                  # Determine if Done status should be considered Passed or Failed
+                                  if ($isDoneStatusAsSuccess) {
+                                      $passedCount++
+                                  } else {
+                                      $failedCount++
+                                  }
+                              }
+                              default {
+                                  Write-Output "Unhandled status: $($runItem.Status)"
+                              }
+                          }
 
                             # Add runItem details to the list
                             $runItemsDetails += [pscustomobject]@{
