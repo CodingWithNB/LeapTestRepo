@@ -86,27 +86,27 @@ jobs:
                             switch ($runItem.Status) {
                               "NoStatus" {
                                   # Remove runItemId from the list
-                                  $executedRunItems.RunItemIds = $executedRunItems.RunItemIds | Where-Object { $_ -ne $runItemId }
+                                   $newExecutedRunItems = $newExecutedRunItems | Where-Object { $_ -ne $runItemId }
                               }
                               "Initializing" {
                                   # Remove runItemId from the list
-                                  $executedRunItems.RunItemIds = $executedRunItems.RunItemIds | Where-Object { $_ -ne $runItemId }
+                                   $newExecutedRunItems = $newExecutedRunItems | Where-Object { $_ -ne $runItemId }
                               }
                               "Connecting" {
                                   # Remove runItemId from the list
-                                  $executedRunItems.RunItemIds = $executedRunItems.RunItemIds | Where-Object { $_ -ne $runItemId }
+                                   $newExecutedRunItems = $newExecutedRunItems | Where-Object { $_ -ne $runItemId }
                               }
                               "Connected" {
                                   # Remove runItemId from the list
-                                  $executedRunItems.RunItemIds = $executedRunItems.RunItemIds | Where-Object { $_ -ne $runItemId }
+                                   $newExecutedRunItems = $newExecutedRunItems | Where-Object { $_ -ne $runItemId }
                               }
                               "Running" {
                                   # Remove runItemId from the list
-                                  $executedRunItems.RunItemIds = $executedRunItems.RunItemIds | Where-Object { $_ -ne $runItemId }
+                                   $newExecutedRunItems = $newExecutedRunItems | Where-Object { $_ -ne $runItemId }
                               }
                               "IsProcessing" {
                                   # Remove runItemId from the list
-                                  $executedRunItems.RunItemIds = $executedRunItems.RunItemIds | Where-Object { $_ -ne $runItemId }
+                                   $newExecutedRunItems = $newExecutedRunItems | Where-Object { $_ -ne $runItemId }
                               }
                               "Passed" {
                                   Write-Output "Status of runItem $($runItemId): Passed"
