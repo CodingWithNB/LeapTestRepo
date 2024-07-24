@@ -21,6 +21,7 @@ jobs:
           # Define headers
           echo "ACCESS_KEY: ${{ secrets.ACCESS_KEY }}"
           echo "TIME_DELAY: ${{ env.TIME_DELAY }}"
+          echo "TIME_DELAY: ${{ env.BASE_URL }}"
           $headers = @{
             "AccessKey" = "${{ secrets.ACCESS_KEY }}"
             "ngrok-skip-browser-warning" = "69488"
