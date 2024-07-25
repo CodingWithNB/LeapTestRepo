@@ -15,9 +15,6 @@ jobs:
         shell: pwsh 
         run: |
           # Define headers
-          echo "ACCESS_KEY: ${{ secrets.ACCESS_KEY }}"
-          echo "TIME_DELAY: ${{ vars.TIME_DELAY }}"
-          echo "BASE_URL: ${{ vars.BASE_URL }}"
           $headers = @{
             "AccessKey" = "${{ secrets.ACCESS_KEY }}"
             "ngrok-skip-browser-warning" = "69488"
@@ -135,7 +132,7 @@ jobs:
                               "Done" {
                                   Write-Output "Status of runItem $($runItemId): Done"
                                   # Determine if Done status should be considered Passed or Failed
-                                  if ($isDoneStatusAsSuccess) {
+                                  if (${{ vars.ISDONESTATUSASSUCCESS }}) {
                                       $passedCount++
                                   } else {
                                       $failedCount++
