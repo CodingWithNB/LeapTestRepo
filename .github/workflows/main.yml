@@ -33,23 +33,18 @@ jobs:
             Write-Output "Processing Schedule ID: $scheduleId"
 
             # Define API URL for starting schedule
-            $url = "${{ vars.BASE_URL }}/api/v4/schedules/7575657/runNow"
+            $url = "${{ vars.BASE_URL }}/api/v4/schedules/$scheduleId/runNow"
 
             try {
                 # Make PUT request to start schedule
                 $response = Invoke-RestMethod -Uri $url -Method PUT -Headers $headers -ContentType "application/json" -ErrorAction Stop
-                Write-Output "Response: $($response | ConvertTo-Json -Depth 10)"
               
                 # Check if starting schedule was successful
                 if (($null -ne $response)) {
                     $jsonResponse = $response | ConvertTo-Json -Depth 10
-                    Write-Output "JSON Response: $jsonResponse"
-
+                   
                     $runId = $response.RunId
                     Write-Output "runId: $runId"
-
-                    # Store runId in an environment variable for subsequent steps
-                    echo "run_id=$runId" >> $env:GITHUB_ENV
 
                     # Initialize variables
                     $isStillRunning = $true
@@ -58,18 +53,16 @@ jobs:
 
                     do {
                         # Simulate waiting
-                        Write-Output "Waiting for ${{ vars.TIME_DELAY }} seconds..."
                         Start-Sleep -Seconds ${{ vars.TIME_DELAY }}
 
                         # Make API call to retrieve executedRunItems
                         $executedRunItems = Invoke-RestMethod -Uri "${{ vars.BASE_URL }}/api/v4/run/$runId/runItemIds" -Method Get -Headers $headers -ContentType "application/json"
-                        Write-Output "ExecutedRunItems: $($executedRunItems | ConvertTo-Json -Depth 10)"
+        
                         # Filter out already processed runItems
                         $executedRunItems.RunItemIds = [string[]]$executedRunItems.RunItemIds
                         $newExecutedRunItems = $executedRunItems.RunItemIds | Where-Object { $_ -notin $runItemsId }
                         Write-Output "NewExecutedRunItems: $($newExecutedRunItems | ConvertTo-Json -Depth 10)"
                         foreach ($runItemId in $newExecutedRunItems) {
-                            Write-Output "RunItemId: $runItemId"
                             # Make API call to get runItem details
                             $runItem = Invoke-RestMethod -Uri "${{ vars.BASE_URL }}/api/v4/runItems/$runItemId" -Method Get -Headers $headers -ContentType "application/json"
 
@@ -81,29 +74,9 @@ jobs:
 
                             # Handle different statuses
                             switch ($runItem.Status) {
-                              "NoStatus" {
+                              "NoStatus" | "Initializing" | "Connecting" | "Connected" | "Running" | "IsProcessing" {
                                   # Remove runItemId from the list
-                                   $newExecutedRunItems = $newExecutedRunItems | Where-Object { $_ -ne $runItemId }
-                              }
-                              "Initializing" {
-                                  # Remove runItemId from the list
-                                   $newExecutedRunItems = $newExecutedRunItems | Where-Object { $_ -ne $runItemId }
-                              }
-                              "Connecting" {
-                                  # Remove runItemId from the list
-                                   $newExecutedRunItems = $newExecutedRunItems | Where-Object { $_ -ne $runItemId }
-                              }
-                              "Connected" {
-                                  # Remove runItemId from the list
-                                   $newExecutedRunItems = $newExecutedRunItems | Where-Object { $_ -ne $runItemId }
-                              }
-                              "Running" {
-                                  # Remove runItemId from the list
-                                   $newExecutedRunItems = $newExecutedRunItems | Where-Object { $_ -ne $runItemId }
-                              }
-                              "IsProcessing" {
-                                  # Remove runItemId from the list
-                                   $newExecutedRunItems = $newExecutedRunItems | Where-Object { $_ -ne $runItemId }
+                                  $newExecutedRunItems = $newExecutedRunItems | Where-Object { $_ -ne $runItemId }
                               }
                               "Passed" {
                                   Write-Output "Status of runItem $($runItemId): Passed"
@@ -113,20 +86,8 @@ jobs:
                                   Write-Output "Status of runItem $($runItemId): Failed"
                                   $failedCount++
                               }
-                              "Error" {
-                                  Write-Output "Status of runItem $($runItemId): Error"
-                                  $errorCount++
-                              }
-                              "Inconclusive" {
-                                  Write-Output "Status of runItem $($runItemId): Inconclusive"
-                                  $errorCount++
-                              }
-                              "Timeout" {
-                                  Write-Output "Status of runItem $($runItemId): Timeout"
-                                  $errorCount++
-                              }
-                              "Cancelled" {
-                                  Write-Output "Status of runItem $($runItemId): Cancelled"
+                              "Error" | "Inconclusive" | "Timeout" | "Cancelled" {
+                                  Write-Output "Status of runItem $($runItemId): $($runItem.Status)"
                                   $errorCount++
                               }
                               "Done" {
@@ -152,13 +113,12 @@ jobs:
 
                             # Add runItemId to processed list
                             $runItemsId += $runItemId
-                            Write-Output "Array of RunItems Id : $runItemsId"
+                            
                         }
 
                         # Check if the runStatus is Finished
-                        Write-Output "RunId for RunStatus  : $runId"
                         $runStatus = Invoke-RestMethod -Uri "${{ vars.BASE_URL }}/api/v4/run/$runId/status" -Method Get -Headers $headers -ContentType "application/json"
-                        Write-Output "Run Status : $($runStatus.Status)"
+          
                         if ($($runStatus.Status) -eq "Finished") {
                             # Check if all runItems have been processed
                             $allExecutedRunItems = Invoke-RestMethod -Uri "${{ vars.BASE_URL }}/api/v4/run/$runId/runItemIds" -Method Get -Headers $headers -ContentType "application/json"
