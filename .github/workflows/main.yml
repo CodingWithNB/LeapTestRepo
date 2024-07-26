@@ -19,12 +19,10 @@ jobs:
           # Define headers
           $headers = @{
             "AccessKey" = "${{ secrets.ACCESS_KEY }}"
-            "ngrok-skip-browser-warning" = "69488"
           }
 
           # Fetch schedule IDs from the API
           $scheduleApiUrl = "${{ vars.BASE_URL }}/api/v4/schedules"
-          echo "Schedule Api Url : $scheduleApiUrl"
           $schedulesResponse = Invoke-RestMethod -Uri $scheduleApiUrl -Method Get -Headers $headers -ContentType "application/json"
           $scheduleIds = $schedulesResponse | ForEach-Object { $_.Id }
 
@@ -43,7 +41,7 @@ jobs:
                 Write-Output "Response: $($response | ConvertTo-Json -Depth 10)"
                 Write-Output "Response Status Code: $($response.StatusCode)"
                 # Check if starting schedule was successful
-                if ($true) {
+                if (($null -ne $response)) {
                     $jsonResponse = $response | ConvertTo-Json -Depth 10
                     Write-Output "JSON Response: $jsonResponse"
 
