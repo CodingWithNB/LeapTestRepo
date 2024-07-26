@@ -154,8 +154,6 @@ jobs:
                         if ($($runStatus.Status) -eq "Finished") {
                             # Check if all runItems have been processed
                             $allExecutedRunItems = Invoke-RestMethod -Uri "${{ vars.BASE_URL }}/api/v4/run/$runId/runItemIds" -Method Get -Headers $headers -ContentType "application/json"
-                            Write-Output "All Executed Run Items: $($allExecutedRunItems | ConvertTo-Json -Depth 10)"
-                            Write-Output "All Executed Run Items Count: $($allExecutedRunItems.RunItemIds.Count)"
                             Write-Output "Processed Run Items Count: $($runItemsId.Count)"
                             if ($allExecutedRunItems.RunItemIds.Count -gt 0 -and $allExecutedRunItems.RunItemIds.Count -le $runItemsId.Count) {
                                 $isStillRunning = $false
