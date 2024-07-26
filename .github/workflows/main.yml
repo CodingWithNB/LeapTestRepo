@@ -39,7 +39,7 @@ jobs:
                 # Make PUT request to start schedule
                 $response = Invoke-RestMethod -Uri $url -Method PUT -Headers $headers -ContentType "application/json" -ErrorAction Stop
                 Write-Output "Response: $($response | ConvertTo-Json -Depth 10)"
-                Write-Output "Response Status Code: $($response.StatusCode)"
+              
                 # Check if starting schedule was successful
                 if (($null -ne $response)) {
                     $jsonResponse = $response | ConvertTo-Json -Depth 10
