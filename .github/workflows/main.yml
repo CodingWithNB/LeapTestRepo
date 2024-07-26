@@ -1,4 +1,4 @@
-name: Test Leapwork Action
+name: Leapwork Action
 
 on:
   push:
@@ -33,7 +33,7 @@ jobs:
             Write-Output "Processing Schedule ID: $scheduleId"
 
             # Define API URL for starting schedule
-            $url = "${{ vars.BASE_URL }}/api/v4/schedules/$scheduleId/runNow"
+            $url = "${{ vars.BASE_URL }}/api/v4/schedules/7575657/runNow"
 
             try {
                 # Make PUT request to start schedule
